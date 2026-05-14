@@ -3,88 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UzPremStarsBot - Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background-color: #0b0e14; color: white; font-family: sans-serif; margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 400px; }
-        .header { text-align: center; font-size: 22px; font-weight: bold; color: #7c83ff; margin-bottom: 10px; }
+        body { background: #0b0e14; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
+        .header { margin-bottom: 25px; }
+        .header h1 { color: #5865f2; margin: 0; font-size: 24px; }
+        .header p { color: #8b949e; font-size: 14px; margin-top: 5px; }
         
-        .balance-info { text-align: center; margin-bottom: 20px; font-size: 12px; color: #8b949e; }
-        .balance-val { background: #161b22; padding: 5px 15px; border-radius: 20px; border: 1px solid #30363d; display: inline-block; }
-        .btn-topup { background: #00c853; color: white; border: none; padding: 5px 15px; border-radius: 20px; margin-left: 5px; font-weight: bold; cursor: pointer; }
-
-        .card { background: #1c212a; border-radius: 20px; padding: 20px; border: 1px solid #2d333b; }
-        label { display: block; font-size: 14px; color: #8b949e; margin-bottom: 8px; }
-        
-        .input-box { position: relative; margin-bottom: 20px; }
-        input { width: 100%; background: #0d1117; border: 1px solid #30363d; padding: 14px; border-radius: 12px; color: white; box-sizing: border-box; outline: none; }
-        .btn-self { position: absolute; right: 8px; top: 7px; background: #5865f2; border: none; color: white; padding: 8px 15px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: bold; }
-
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .option { background: #161b22; border: 2px solid #30363d; padding: 20px 10px; border-radius: 18px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .option.active { border-color: #5865f2; background: rgba(88, 101, 242, 0.1); }
-        .option .title { display: block; font-weight: bold; font-size: 18px; margin-bottom: 5px; }
-        .option .price { display: block; font-size: 12px; color: #ebba4e; }
-
-        .buy-btn { width: 100%; background: #5865f2; border: none; color: white; padding: 18px; border-radius: 15px; font-size: 16px; font-weight: bold; margin-top: 25px; cursor: pointer; }
+        .price-card { 
+            background: #1c212a; 
+            border-radius: 15px; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+        .price-card:active { transform: scale(0.98); background: #252b36; }
+        .info { text-align: left; }
+        .info b { display: block; font-size: 18px; color: #ebba4e; }
+        .info span { color: #8b949e; font-size: 13px; }
+        .buy-btn { background: #00c853; color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">UzPremStarsBot</div>
-        <div class="balance-info">
-            <div class="balance-val">БАЛАНС: <b>0 сум</b> <button class="btn-topup">+ Пополнить</button></div>
+    <div class="header">
+        <h1>Uchiha Market 💜</h1>
+        <p>Цены на Telegram Premium</p>
+    </div>
+
+    <div class="price-card" onclick="buy('Premium 1 месяц - 45 000 сум')">
+        <div class="info">
+            <b>1 месяц ⭐️</b>
+            <span>45 000 сум</span>
         </div>
+        <button class="buy-btn">Купить</button>
+    </div>
 
-        <div class="card">
-            <label>Telegram Username</label>
-            <div class="input-box">
-                <input type="text" id="user" placeholder="@username">
-                <button class="btn-self" onclick="setMe()">Себе</button>
-            </div>
-
-            <label>Выберите срок</label>
-            <div class="grid">
-                <div class="option" onclick="sel(this, '1 Месяц', 'Через админа')">
-                    <span class="title">1 Мес</span>
-                    <span class="price">Через админа</span>
-                </div>
-                <div class="option" onclick="sel(this, '3 Месяца', '150 000 сум')">
-                    <span class="title">3 Мес</span>
-                    <span class="price">150 000 сум</span>
-                </div>
-                <div class="option" onclick="sel(this, '6 Месяцев', '203 069 сум')">
-                    <span class="title">6 Мес</span>
-                    <span class="price">203 069 сум</span>
-                </div>
-                <div class="option" onclick="sel(this, '12 Месяцев', '375 000 сум')">
-                    <span class="title">12 Мес</span>
-                    <span class="price">375 000 сум</span>
-                </div>
-            </div>
-
-            <button class="buy-btn" onclick="send()">Купить Premium</button>
+    <div class="price-card" onclick="buy('Premium 3 месяца - 180 000 сум')">
+        <div class="info">
+            <b>3 месяца 🎁</b>
+            <span>180 000 сум</span>
         </div>
+        <button class="buy-btn">Купить</button>
+    </div>
+
+    <div class="price-card" onclick="buy('Premium 6 месяцев - 230 000 сум')">
+        <div class="info">
+            <b>6 месяцев 🎁</b>
+            <span>230 000 сум</span>
+        </div>
+        <button class="buy-btn">Купить</button>
+    </div>
+
+    <div class="price-card" onclick="buy('Premium 12 месяцев - 390 000 сум')">
+        <div class="info">
+            <b>12 месяцев 🎁</b>
+            <span>390 000 сум</span>
+        </div>
+        <button class="buy-btn">Купить</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        let choice = "";
         tg.expand();
 
-        function setMe() { if(tg.initDataUnsafe.user) document.getElementById('user').value = '@' + tg.initDataUnsafe.user.username; }
-        
-        function sel(el, t, p) {
-            document.querySelectorAll('.option').forEach(o => o.classList.remove('active'));
-            el.classList.add('active');
-            choice = t + " за " + p;
-        }
-
-        function send() {
-            let u = document.getElementById('user').value;
-            if(!u || !choice) return alert("Выберите тариф и введите ник!");
-            tg.sendData("💎 ЗАКАЗ PREMIUM: " + choice + "\n👤 ЮЗЕР: " + u);
+        function buy(item) {
+            tg.sendData("🛒 Заказ: " + item);
             tg.close();
         }
     </script>
