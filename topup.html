@@ -3,73 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Пополнение баланса</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background-color: #0b0e14; color: white; font-family: sans-serif; margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 400px; }
-        .header { text-align: center; font-size: 20px; font-weight: bold; color: #00c853; margin-bottom: 20px; }
+        body { background: #0b0e14; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
+        .card-box { background: #1c212a; border-radius: 15px; padding: 20px; border: 1px solid #5865f2; margin-bottom: 20px; }
+        .card-num { font-size: 18px; color: #ebba4e; font-weight: bold; cursor: pointer; display: block; margin-top: 10px; border-bottom: 1px dashed #ebba4e; padding-bottom: 5px; }
         
-        .card-info { background: #1c212a; border-radius: 20px; padding: 20px; border: 1px solid #2d333b; margin-bottom: 20px; text-align: center; }
-        .card-number { font-size: 18px; color: #ebba4e; font-weight: bold; letter-spacing: 1px; background: #0d1117; padding: 10px; border-radius: 10px; display: block; margin-top: 10px; border: 1px dashed #5865f2; }
-        
-        label { display: block; font-size: 14px; color: #8b949e; margin-bottom: 10px; }
-        
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .amount-option { background: #161b22; border: 2px solid #30363d; padding: 15px; border-radius: 15px; text-align: center; cursor: pointer; }
-        .amount-option.active { border-color: #00c853; background: rgba(0, 200, 83, 0.1); }
-        .amount-option span { display: block; font-weight: bold; }
+        /* Поле, куда МОЖНО ПИСАТЬ */
+        input { 
+            width: 100%; 
+            background: #0d1117; 
+            border: 2px solid #30363d; 
+            padding: 15px; 
+            border-radius: 10px; 
+            color: white; 
+            font-size: 16px; 
+            margin-top: 10px; 
+            outline: none; 
+            box-sizing: border-box;
+        }
+        input:focus { border-color: #00c853; }
 
-        .footer-note { font-size: 12px; color: #8b949e; margin-top: 15px; text-align: center; }
-        .pay-btn { width: 100%; background: #00c853; border: none; color: white; padding: 18px; border-radius: 15px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        .pay-btn { background: #00c853; color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; font-size: 16px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">$ Пополнение баланса $</div>
-        
-        <div class="card-info">
-            <label>Переведите сумму на карту:</label>
-            <span class="card-number" onclick="copyCard()">8600 0000 0000 0000</span>
-            <small style="color: #8b949e; margin-top: 5px; display: block;">(Нажмите, чтобы скопировать)</small>
-        </div>
-
-        <label>Выберите сумму пополнения:</label>
-        <div class="grid">
-            <div class="amount-option" onclick="selectSum(this, '10 000')"><span>10 000 сум</span></div>
-            <div class="amount-option" onclick="selectSum(this, '50 000')"><span>50 000 сум</span></div>
-            <div class="amount-option" onclick="selectSum(this, '100 000')"><span>100 000 сум</span></div>
-            <div class="amount-option" onclick="selectSum(this, '200 000')"><span>200 000 сум</span></div>
-        </div>
-
-        <button class="pay-btn" onclick="sendTopUp()">Я оплатил(а)</button>
-        <div class="footer-note">После нажатия кнопки отправьте чек администратору!</div>
+    <h3>$ Пополнение баланса $</h3>
+    
+    <div class="card-box">
+        <small style="color: #8b949e;">Переведите деньги на карту:</small>
+        <span class="card-num" id="card" onclick="copyNum()">8600 0000 0000 0000</span>
+        <small style="color: #5865f2; font-size: 11px;">(Нажмите на номер, чтобы скопировать его)</small>
     </div>
+
+    <div style="text-align: left;">
+        <label style="font-size: 14px; color: #8b949e; margin-left: 5px;">Что вы хотите написать? (Сумма или данные)</label>
+        <input type="text" id="userInput" placeholder="Напишите здесь...">
+    </div>
+
+    <button class="pay-btn" onclick="send()">Отправить в бот</button>
 
     <script>
         let tg = window.Telegram.WebApp;
-        let selectedSum = "";
         tg.expand();
 
-        function selectSum(el, sum) {
-            document.querySelectorAll('.amount-option').forEach(o => o.classList.remove('active'));
-            el.classList.add('active');
-            selectedSum = sum;
-        }
-
-        function copyCard() {
+        // Функция просто копирует номер, чтобы ты не переписывал его вручную
+        function copyNum() {
             const el = document.createElement('textarea');
-            el.value = '8600000000000000'; // ТВОЯ КАРТА ТУТ
+            el.value = '8600000000000000'; // ТВОЙ НОМЕР КАРТЫ
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            alert("Номер карты скопирован!");
+            alert("Номер карты скопирован! Оплатите в приложении банка и возвращайтесь сюда.");
         }
 
-        function sendTopUp() {
-            if(!selectedSum) return alert("Выберите сумму!");
-            tg.sendData("💰 ПОПОЛНЕНИЕ: " + selectedSum + " сум. Ожидайте подтверждения чека.");
+        // Функция отправляет твой текст обратно в Telegram бот
+        function send() {
+            let val = document.getElementById('userInput').value;
+            if(!val) {
+                alert("Пожалуйста, напишите что-нибудь в поле!");
+                return;
+            }
+            tg.sendData("💰 СООБЩЕНИЕ ОБ ОПЛАТЕ: " + val);
             tg.close();
         }
     </script>
