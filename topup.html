@@ -6,71 +6,66 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { background: #0b0e14; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
-        .card-display { background: #1c212a; border-radius: 15px; padding: 20px; border: 1px solid #5865f2; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .card-num { font-size: 22px; color: #ebba4e; font-weight: bold; letter-spacing: 1px; }
+        .card-box { background: #1c212a; border-radius: 15px; padding: 20px; border: 1px solid #5865f2; margin-bottom: 20px; }
+        .card-num { font-size: 18px; color: #ebba4e; font-weight: bold; cursor: pointer; display: block; margin-top: 10px; border-bottom: 1px dashed #ebba4e; padding-bottom: 5px; }
         
-        .input-container { text-align: left; }
-        .hint { font-size: 13px; color: #8b949e; margin-bottom: 8px; display: block; margin-left: 5px; }
-        
+        /* Поле, куда МОЖНО ПИСАТЬ */
         input { 
             width: 100%; 
             background: #0d1117; 
             border: 2px solid #30363d; 
-            padding: 18px; 
-            border-radius: 12px; 
-            color: #00c853; 
-            font-size: 20px; 
-            font-weight: bold;
+            padding: 15px; 
+            border-radius: 10px; 
+            color: white; 
+            font-size: 16px; 
+            margin-top: 10px; 
             outline: none; 
             box-sizing: border-box;
-            text-align: center;
-            letter-spacing: 2px;
-            transition: 0.3s;
         }
-        input:focus { border-color: #00c853; box-shadow: 0 0 10px rgba(0, 200, 83, 0.2); }
+        input:focus { border-color: #00c853; }
 
-        .send-btn { background: #00c853; color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; margin-top: 25px; cursor: pointer; font-size: 16px; transition: 0.2s; }
-        .send-btn:active { transform: scale(0.98); opacity: 0.8; }
+        .pay-btn { background: #00c853; color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; font-size: 16px; }
     </style>
 </head>
 <body>
-    <h3 style="margin-bottom: 25px;">Пополнение баланса</h3>
+    <h3>$ Пополнение баланса $</h3>
     
-    <div class="card-display">
-        <span style="font-size: 12px; color: #8b949e; text-transform: uppercase;">Карта для перевода:</span><br>
-        <span class="card-num">8600 0000 0000 0000</span>
+    <div class="card-box">
+        <small style="color: #8b949e;">Переведите деньги на карту:</small>
+        <span class="card-num" id="card" onclick="copyNum()">8600 0000 0000 0000</span>
+        <small style="color: #5865f2; font-size: 11px;">(Нажмите на номер, чтобы скопировать его)</small>
     </div>
 
-    <div class="input-container">
-        <span class="hint">Введите номер вашей карты (16 цифр):</span>
-        <input type="text" id="cardNumber" inputmode="numeric" placeholder="0000 0000 0000 0000" maxlength="19">
+    <div style="text-align: left;">
+        <label style="font-size: 14px; color: #8b949e; margin-left: 5px;">Что вы хотите написать? (Сумма или данные)</label>
+        <input type="text" id="userInput" placeholder="Напишите здесь...">
     </div>
 
-    <button class="send-btn" onclick="sendData()">Подтвердить оплату</button>
+    <button class="pay-btn" onclick="send()">Отправить в бот</button>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        const input = document.getElementById('cardNumber');
+        // Функция просто копирует номер, чтобы ты не переписывал его вручную
+        function copyNum() {
+            const el = document.createElement('textarea');
+            el.value = '8600000000000000'; // ТВОЙ НОМЕР КАРТЫ
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert("Номер карты скопирован! Оплатите в приложении банка и возвращайтесь сюда.");
+        }
 
-        // Магия для пробелов через каждые 4 цифры
-        input.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\D/g, ''); // Удаляем всё, кроме цифр
-            let formatted = value.match(/.{1,4}/g)?.join(' ') || ''; // Добавляем пробелы
-            e.target.value = formatted;
-        });
-
-        function sendData() {
-            let val = input.value;
-            // Проверяем, чтобы было введено минимум 16 цифр (с пробелами это 19 символов)
-            if(val.length < 19) {
-                alert("Пожалуйста, введите полный номер карты (16 цифр)!");
+        // Функция отправляет твой текст обратно в Telegram бот
+        function send() {
+            let val = document.getElementById('userInput').value;
+            if(!val) {
+                alert("Пожалуйста, напишите что-нибудь в поле!");
                 return;
             }
-            
-            // Отправляем данные в твой бот
-            tg.sendData("💰 ОПЛАТА С КАРТЫ: " + val);
+            tg.sendData("💰 СООБЩЕНИЕ ОБ ОПЛАТЕ: " + val);
             tg.close();
         }
     </script>
