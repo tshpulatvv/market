@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uchiha Market</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background-color: #0b0e14; color: white; font-family: sans-serif; display: flex; justify-content: center; padding-top: 20px; margin: 0; }
+        .container { background: #161b22; border: 1px solid #30363d; border-radius: 15px; padding: 20px; width: 90%; max-width: 350px; }
+        h2 { color: #a371f7; text-align: center; }
+        label { display: block; font-size: 12px; color: #8b949e; margin-bottom: 5px; margin-top: 15px; }
+        .row { display: flex; gap: 5px; }
+        input { flex-grow: 1; background: #0d1117; border: 1px solid #30363d; padding: 10px; border-radius: 8px; color: white; }
+        .btn-self { background: #3a3fff; border: none; color: white; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .price-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .price-item { background: #21262d; border: 1px solid #30363d; padding: 12px; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; }
+        .price-item:hover, .price-item.active { border-color: #a371f7; background: #2d333b; }
+        .stars { font-weight: bold; color: #e3b341; }
+        .cost { color: #79c0ff; }
+        .buy-btn { width: 100%; background: #a371f7; border: none; color: white; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Uchiha Market</h2>
+        <label>TELEGRAM USERNAME</label>
+        <div class="row">
+            <input type="text" id="target_user" placeholder="@username">
+            <button class="btn-self" onclick="fillSelf()">Себе</button>
+        </div>
+        <label>ВЫБЕРИТЕ ПАКЕТ STARS</label>
+        <div class="price-list">
+            <div class="price-item" onclick="selectPack(this, '50 Stars', '15 000')">
+                <span class="stars">⭐️ 50 Stars</span> <span class="cost">15 000 сум</span>
+            </div>
+            <div class="price-item" onclick="selectPack(this, '100 Stars', '25 000')">
+                <span class="stars">⭐️ 100 Stars</span> <span class="cost">25 000 сум</span>
+            </div>
+            <div class="price-item" onclick="selectPack(this, '150 Stars', '35 000')">
+                <span class="stars">⭐️ 150 Stars</span> <span class="cost">35 000 сум</span>
+            </div>
+            <div class="price-item" onclick="selectPack(this, '250 Stars', '55 000')">
+                <span class="stars">⭐️ 250 Stars</span> <span class="cost">55 000 сум</span>
+            </div>
+            <div class="price-item" onclick="selectPack(this, '350 Stars', '75 000')">
+                <span class="stars">⭐️ 350 Stars</span> <span class="cost">75 000 сум</span>
+            </div>
+        </div>
+        <button class="buy-btn" id="main_button" onclick="confirmOrder()">Купить</button>
+    </div>
+    <script>
+        let tg = window.Telegram.WebApp;
+        let selectedOrder = "";
+        tg.expand();
+        function fillSelf() { if (tg.initDataUnsafe.user && tg.initDataUnsafe.user.username) { document.getElementById('target_user').value = '@' + tg.initDataUnsafe.user.username; } }
+        function selectPack(element, name, price) {
+            document.querySelectorAll('.price-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            selectedOrder = `${name} за ${price} сум`;
+            document.getElementById('main_button').innerText = "Купить: " + name;
+        }
+        function confirmOrder() {
+            let user = document.getElementById('target_user').value;
+            if (!user || !selectedOrder) { alert("Выберите пакет и введите ник!"); return; }
+            tg.sendData(`ЗАКАЗ: ${selectedOrder} | ДЛЯ: ${user}`);
+            tg.close();
+        }
+    </script>
+</body>
+</html>
