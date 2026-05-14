@@ -6,67 +6,38 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { background: #0b0e14; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
-        .card-box { background: #1c212a; border-radius: 15px; padding: 20px; border: 1px solid #5865f2; margin-bottom: 20px; }
-        .card-num { font-size: 18px; color: #ebba4e; font-weight: bold; cursor: pointer; display: block; margin-top: 10px; border-bottom: 1px dashed #ebba4e; padding-bottom: 5px; }
-        
-        /* Поле, куда МОЖНО ПИСАТЬ */
-        input { 
-            width: 100%; 
-            background: #0d1117; 
-            border: 2px solid #30363d; 
-            padding: 15px; 
-            border-radius: 10px; 
-            color: white; 
-            font-size: 16px; 
-            margin-top: 10px; 
-            outline: none; 
-            box-sizing: border-box;
-        }
-        input:focus { border-color: #00c853; }
-
-        .pay-btn { background: #00c853; color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; font-size: 16px; }
+        .card-box { background: #1c212a; border-radius: 15px; padding: 20px; border: 1px solid #5865f2; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        input { width: 100%; background: #0d1117; border: 2px solid #30363d; padding: 18px; border-radius: 12px; color: #00c853; font-size: 22px; font-weight: bold; outline: none; box-sizing: border-box; text-align: center; }
+        .btn { background: #00c853; color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; margin-top: 20px; font-size: 16px; cursor: pointer; }
+        .btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
-    <h3>$ Пополнение баланса $</h3>
-    
+    <h3>Пополнение баланса</h3>
     <div class="card-box">
-        <small style="color: #8b949e;">Переведите деньги на карту:</small>
-        <span class="card-num" id="card" onclick="copyNum()">8600 0000 0000 0000</span>
-        <small style="color: #5865f2; font-size: 11px;">(Нажмите на номер, чтобы скопировать его)</small>
+        <small style="color: #8b949e;">Карта для перевода:</small><br>
+        <b style="color:#ebba4e; font-size: 20px;">8600 0000 0000 0000</b>
     </div>
-
-    <div style="text-align: left;">
-        <label style="font-size: 14px; color: #8b949e; margin-left: 5px;">Что вы хотите написать? (Сумма или данные)</label>
-        <input type="text" id="userInput" placeholder="Напишите здесь...">
-    </div>
-
-    <button class="pay-btn" onclick="send()">Отправить в бот</button>
+    <input type="text" id="cardInp" inputmode="numeric" placeholder="0000 0000 0000 0000" maxlength="19">
+    <button class="btn" onclick="send()">Отправить в бот</button>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        const input = document.getElementById('cardInp');
 
-        // Функция просто копирует номер, чтобы ты не переписывал его вручную
-        function copyNum() {
-            const el = document.createElement('textarea');
-            el.value = '8600000000000000'; // ТВОЙ НОМЕР КАРТЫ
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            alert("Номер карты скопирован! Оплатите в приложении банка и возвращайтесь сюда.");
-        }
+        // Маска пробелов каждые 4 цифры
+        input.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '');
+            let formatted = val.match(/.{1,4}/g)?.join(' ') || '';
+            e.target.value = formatted.substring(0, 19);
+        });
 
-        // Функция отправляет твой текст обратно в Telegram бот
         function send() {
-            let val = document.getElementById('userInput').value;
-            if(!val) {
-                alert("Пожалуйста, напишите что-нибудь в поле!");
-                return;
-            }
-            tg.sendData("💰 СООБЩЕНИЕ ОБ ОПЛАТЕ: " + val);
-            tg.close();
+            if(input.value.length < 19) return alert("Введите 16 цифр!");
+            // Отправка данных
+            tg.sendData(input.value);
+            // tg.close() убран, чтобы приложение не "вылетало" мгновенно
         }
     </script>
 </body>
