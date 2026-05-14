@@ -6,37 +6,45 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { background: #0b0e14; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
-        .card-display { background: #1c212a; border-radius: 15px; padding: 20px; border: 1px solid #5865f2; margin-bottom: 25px; }
+        .card-display { background: #1c212a; border-radius: 15px; padding: 20px; border: 1px solid #5865f2; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .card-num { font-size: 22px; color: #ebba4e; font-weight: bold; letter-spacing: 1px; }
         
-        /* Поле ввода: ТОЛЬКО ЦИФРЫ */
+        .input-container { text-align: left; }
+        .hint { font-size: 13px; color: #8b949e; margin-bottom: 8px; display: block; margin-left: 5px; }
+        
         input { 
             width: 100%; 
             background: #0d1117; 
             border: 2px solid #30363d; 
             padding: 18px; 
             border-radius: 12px; 
-            color: white; 
-            font-size: 18px; 
+            color: #00c853; 
+            font-size: 20px; 
+            font-weight: bold;
             outline: none; 
             box-sizing: border-box;
             text-align: center;
+            letter-spacing: 2px;
+            transition: 0.3s;
         }
-        input:focus { border-color: #00c853; }
-        .hint { font-size: 13px; color: #8b949e; margin-bottom: 8px; display: block; text-align: left; }
-        .send-btn { background: #00c853; color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; margin-top: 25px; cursor: pointer; font-size: 16px; }
+        input:focus { border-color: #00c853; box-shadow: 0 0 10px rgba(0, 200, 83, 0.2); }
+
+        .send-btn { background: #00c853; color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; margin-top: 25px; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .send-btn:active { transform: scale(0.98); opacity: 0.8; }
     </style>
 </head>
 <body>
-    <h3>Пополнение баланса</h3>
+    <h3 style="margin-bottom: 25px;">Пополнение баланса</h3>
     
     <div class="card-display">
-        <span style="font-size: 12px; color: #8b949e;">Карта для перевода:</span><br>
+        <span style="font-size: 12px; color: #8b949e; text-transform: uppercase;">Карта для перевода:</span><br>
         <span class="card-num">8600 0000 0000 0000</span>
     </div>
 
-    <span class="hint">Введите номер вашей карты (откуда платили):</span>
-    <input type="text" id="cardNumber" inputmode="numeric" placeholder="0000 0000 0000 0000">
+    <div class="input-container">
+        <span class="hint">Введите номер вашей карты (16 цифр):</span>
+        <input type="text" id="cardNumber" inputmode="numeric" placeholder="0000 0000 0000 0000" maxlength="19">
+    </div>
 
     <button class="send-btn" onclick="sendData()">Подтвердить оплату</button>
 
@@ -44,11 +52,24 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
+        const input = document.getElementById('cardNumber');
+
+        // Магия для пробелов через каждые 4 цифры
+        input.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, ''); // Удаляем всё, кроме цифр
+            let formatted = value.match(/.{1,4}/g)?.join(' ') || ''; // Добавляем пробелы
+            e.target.value = formatted;
+        });
+
         function sendData() {
-            let val = document.getElementById('cardNumber').value;
-            if(!val) return alert("Введите номер карты!");
+            let val = input.value;
+            // Проверяем, чтобы было введено минимум 16 цифр (с пробелами это 19 символов)
+            if(val.length < 19) {
+                alert("Пожалуйста, введите полный номер карты (16 цифр)!");
+                return;
+            }
             
-            // Отправляем цифры в бот
+            // Отправляем данные в твой бот
             tg.sendData("💰 ОПЛАТА С КАРТЫ: " + val);
             tg.close();
         }
