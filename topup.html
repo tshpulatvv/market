@@ -6,56 +6,50 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { background: #0b0e14; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
-        .card-info { background: #1c212a; border-radius: 15px; padding: 20px; border: 1px solid #5865f2; margin-bottom: 25px; }
-        .card-num { font-size: 20px; color: #ebba4e; font-weight: bold; display: block; margin-top: 10px; letter-spacing: 1px; }
+        .card-display { background: #1c212a; border-radius: 15px; padding: 20px; border: 1px solid #5865f2; margin-bottom: 25px; }
+        .card-num { font-size: 22px; color: #ebba4e; font-weight: bold; letter-spacing: 1px; }
         
-        /* Поле ввода для ЦИФР */
+        /* Поле ввода: ТОЛЬКО ЦИФРЫ */
         input { 
             width: 100%; 
             background: #0d1117; 
             border: 2px solid #30363d; 
-            padding: 15px; 
+            padding: 18px; 
             border-radius: 12px; 
             color: white; 
             font-size: 18px; 
-            margin-top: 10px; 
             outline: none; 
             box-sizing: border-box;
             text-align: center;
         }
         input:focus { border-color: #00c853; }
-
+        .hint { font-size: 13px; color: #8b949e; margin-bottom: 8px; display: block; text-align: left; }
         .send-btn { background: #00c853; color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; margin-top: 25px; cursor: pointer; font-size: 16px; }
-        label { font-size: 14px; color: #8b949e; }
     </style>
 </head>
 <body>
-    <h3>$ Пополнение $</h3>
+    <h3>Пополнение баланса</h3>
     
-    <div class="card-info">
-        <label>Переведите на эту карту:</label>
-        <span class="card-num">8600 1234 5678 9000</span>
+    <div class="card-display">
+        <span style="font-size: 12px; color: #8b949e;">Карта для перевода:</span><br>
+        <span class="card-num">8600 0000 0000 0000</span>
     </div>
 
-    <div style="text-align: left;">
-        <label>Введите номер вашей карты или сумму оплаты:</label>
-        <input type="text" id="payInput" inputmode="numeric" pattern="[0-9]*" placeholder="0000 0000 0000 0000">
-    </div>
+    <span class="hint">Введите номер вашей карты (откуда платили):</span>
+    <input type="text" id="cardNumber" inputmode="numeric" placeholder="0000 0000 0000 0000">
 
-    <button class="send-btn" onclick="sendToBot()">Отправить данные</button>
+    <button class="send-btn" onclick="sendData()">Подтвердить оплату</button>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        function sendToBot() {
-            let val = document.getElementById('payInput').value;
-            if(!val) {
-                alert("Сначала введите данные!");
-                return;
-            }
-            // Отправляем текст в твой bot.py
-            tg.sendData("💳 Данные оплаты: " + val);
+        function sendData() {
+            let val = document.getElementById('cardNumber').value;
+            if(!val) return alert("Введите номер карты!");
+            
+            // Отправляем цифры в бот
+            tg.sendData("💰 ОПЛАТА С КАРТЫ: " + val);
             tg.close();
         }
     </script>
