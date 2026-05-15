@@ -12,66 +12,71 @@
             --accent: #6366f1;
             --purple: #8b5cf6;
             --green: #10b981;
-            --text: #ffffff;
+            --text-main: #ffffff;
             --text-sec: #94a3b8;
         }
 
         body {
             background-color: var(--bg);
-            color: var(--text);
+            color: var(--text-main);
             font-family: 'Inter', sans-serif;
             margin: 0; padding: 15px;
-            display: flex; flex-direction: column; gap: 15px;
+            display: flex; flex-direction: column; gap: 20px;
         }
 
-        /* Кнопка Пополнить (Плюсик сверху) */
+        /* Кнопка Пополнить (Зеленая сверху) */
         .header { display: flex; justify-content: flex-end; align-items: center; }
         .btn-topup-plus {
             background: var(--green);
             color: white; border: none;
-            padding: 10px 20px; border-radius: 50px;
+            padding: 10px 22px; border-radius: 50px;
             font-weight: bold; font-size: 14px;
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            cursor: pointer;
         }
 
-        .title { font-size: 22px; font-weight: 800; text-align: center; margin: 10px 0; color: var(--purple); }
+        .title { font-size: 24px; font-weight: 800; text-align: center; color: var(--purple); letter-spacing: 1px; }
 
-        /* Карточки */
+        /* Карточки товаров */
         .card {
             background: var(--card);
-            border-radius: 20px; padding: 20px;
+            border-radius: 24px; padding: 20px;
             border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .card-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .card-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         
-        .input-box {
-            background: #0f111a; border-radius: 12px;
-            padding: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+        .input-group {
+            background: #0f111a; border-radius: 14px;
+            padding: 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
         }
         input { background: transparent; border: none; color: white; width: 100%; outline: none; font-size: 16px; }
 
-        .btn-buy {
+        .btn-action {
             background: linear-gradient(90deg, var(--accent), var(--purple));
             color: white; border: none; width: 100%;
-            padding: 14px; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 10px;
+            padding: 16px; border-radius: 14px; font-weight: bold; font-size: 16px;
+            cursor: pointer; transition: 0.2s;
         }
+        .btn-action:active { transform: scale(0.98); }
 
-        /* Выбор срока Premium */
-        .premium-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .prem-opt {
-            background: #0f111a; padding: 10px; border-radius: 10px;
+        /* Сетка цен Premium */
+        .premium-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .option {
+            background: #0f111a; padding: 12px; border-radius: 12px;
             text-align: center; border: 1px solid transparent; cursor: pointer;
         }
-        .prem-opt.active { border-color: var(--purple); background: rgba(139, 92, 246, 0.1); }
-        .prem-price { font-size: 12px; color: var(--text-sec); }
+        .option.active { border-color: var(--purple); background: rgba(139, 92, 246, 0.1); }
+        .price-tag { font-size: 12px; color: var(--text-sec); margin-top: 4px; }
 
-        /* Модалка пополнения */
-        #modal {
+        /* Окно пополнения */
+        #topup-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 100;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(8px);
+            justify-content: center; align-items: center; z-index: 1000;
         }
-        .modal-content { background: var(--card); width: 80%; padding: 25px; border-radius: 25px; text-align: center; }
+        .modal-box { background: var(--card); width: 85%; padding: 30px; border-radius: 28px; text-align: center; }
     </style>
 </head>
 <body>
@@ -83,79 +88,77 @@
     <div class="title">UCHIHA MARKET</div>
 
     <div class="card">
-        <div class="card-title">⭐️ Telegram Stars</div>
-        <div class="input-box">
+        <div class="card-header">⭐️ Telegram Stars</div>
+        <div class="input-group">
             <input type="text" id="stars_user" placeholder="@username">
-            <button onclick="fillMe('stars_user')" style="background:var(--accent); border:none; color:white; padding:5px 10px; border-radius:8px; font-size:12px;">Себе</button>
+            <button onclick="setMe('stars_user')" style="background:var(--accent); border:none; color:white; padding:6px 12px; border-radius:8px; font-size:12px;">Себе</button>
         </div>
-        <div class="input-box">
+        <div class="input-group">
             <span>⭐</span>
-            <input type="number" id="stars_count" placeholder="Количество (мин. 50)" oninput="calcStars()">
-            <span id="stars_res" style="font-size:12px; color:var(--text-sec); white-space:nowrap;">0 сум</span>
+            <input type="number" id="stars_qty" placeholder="Количество (мин. 50)" oninput="calcStars()">
+            <span id="stars_price" style="font-size:12px; color:var(--text-sec); white-space:nowrap;">0 сум</span>
         </div>
-        <button class="btn-buy" onclick="buyStars()">Купить Звезды</button>
+        <button class="btn-action" onclick="buyStars()">Купить Stars</button>
     </div>
 
     <div class="card">
-        <div class="card-title">💎 Telegram Premium</div>
-        <div class="input-box">
+        <div class="card-header">💎 Telegram Premium</div>
+        <div class="input-group">
             <input type="text" id="prem_user" placeholder="@username">
-            <button onclick="fillMe('prem_user')" style="background:var(--accent); border:none; color:white; padding:5px 10px; border-radius:8px; font-size:12px;">Себе</button>
+            <button onclick="setMe('prem_user')" style="background:var(--accent); border:none; color:white; padding:6px 12px; border-radius:8px; font-size:12px;">Себе</button>
         </div>
-        <div class="premium-grid">
-            <div class="prem-opt" onclick="selectPrem(this, '1 месяц', 45000)">1 ой<div class="prem-price">45к</div></div>
-            <div class="prem-opt" onclick="selectPrem(this, '3 месяца', 180000)">3 ой<div class="prem-price">180к</div></div>
-            <div class="prem-opt active" onclick="selectPrem(this, '6 месяцев', 230000)">6 ой<div class="prem-price">230к</div></div>
-            <div class="prem-opt" onclick="selectPrem(this, '12 месяцев', 390000)">12 ой<div class="prem-price">390к</div></div>
+        <div class="premium-options">
+            <div class="option" onclick="selP(this, '1 месяц', 45000)">1 ой<div class="price-tag">45к сум</div></div>
+            <div class="option" onclick="selP(this, '3 месяца', 180000)">3 ой<div class="price-tag">180к сум</div></div>
+            <div class="option active" onclick="selP(this, '6 месяцев', 230000)">6 ой<div class="price-tag">230к сум</div></div>
+            <div class="option" onclick="selP(this, '12 месяцев', 390000)">12 ой<div class="price-tag">390к сум</div></div>
         </div>
-        <button class="btn-buy" onclick="buyPrem()">Оформить Premium</button>
+        <button class="btn-action" onclick="buyPrem()">Купить Premium</button>
     </div>
 
-    <div id="modal">
-        <div class="modal-content">
-            <h3>💰 Пополнение</h3>
-            <div class="input-box"><input type="number" id="topup_val" placeholder="Сумма (сум)"></div>
-            <button class="btn-buy" style="background:var(--green)" onclick="sendTopup()">Перейти к оплате</button>
-            <p onclick="closeModal()" style="margin-top:15px; color:var(--text-sec); font-size:14px;">Закрыть</p>
+    <div id="topup-modal">
+        <div class="modal-box">
+            <h3 style="margin:0 0 10px 0">💳 Пополнение</h3>
+            <p style="color:var(--text-sec); font-size:13px">Введите сумму (мин. 1000 сум)</p>
+            <div class="input-group"><input type="number" id="t_val" placeholder="Сумма..."></div>
+            <button class="btn-action" style="background:var(--green)" onclick="doTopup()">Перейти к оплате 🚀</button>
+            <p onclick="closeModal()" style="margin-top:20px; color:var(--text-sec); cursor:pointer">Закрыть</p>
         </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        let selectedPrem = { name: '6 месяцев', price: 230000 };
+        let pData = { name: '6 месяцев', price: 230000 };
 
-        function fillMe(id) { if(tg.initDataUnsafe.user) document.getElementById(id).value = tg.initDataUnsafe.user.username; }
-        function calcStars() { document.getElementById('stars_res').innerText = (document.getElementById('stars_count').value * 300) + " сум"; }
+        function setMe(id) { if(tg.initDataUnsafe.user) document.getElementById(id).value = tg.initDataUnsafe.user.username; }
+        function calcStars() { document.getElementById('stars_price').innerText = (document.getElementById('stars_qty').value * 300) + " сум"; }
         
-        function selectPrem(el, name, price) {
-            document.querySelectorAll('.prem-opt').forEach(opt => opt.classList.remove('active'));
+        function selP(el, n, p) {
+            document.querySelectorAll('.option').forEach(o => o.classList.remove('active'));
             el.classList.add('active');
-            selectedPrem = { name, price };
+            pData = { name: n, price: p };
         }
 
-        function openModal() { document.getElementById('modal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        function openModal() { document.getElementById('topup-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('topup-modal').style.display = 'none'; }
 
         function buyStars() {
             tg.sendData(JSON.stringify({
-                type: "order", item: "Stars", 
-                qty: document.getElementById('stars_count').value,
-                user: document.getElementById('stars_user').value,
-                price: document.getElementById('stars_count').value * 300
+                t: "Stars", u: document.getElementById('stars_user').value, 
+                q: document.getElementById('stars_qty').value, p: document.getElementById('stars_qty').value * 300
             }));
         }
 
         function buyPrem() {
             tg.sendData(JSON.stringify({
-                type: "order", item: "Premium " + selectedPrem.name,
-                user: document.getElementById('prem_user').value,
-                price: selectedPrem.price
+                t: "Premium", u: document.getElementById('prem_user').value, 
+                d: pData.name, p: pData.price
             }));
         }
 
-        function sendTopup() {
-            tg.sendData(JSON.stringify({ type: "topup", amount: document.getElementById('topup_val').value }));
+        function doTopup() {
+            tg.sendData(JSON.stringify({ t: "TopUp", a: document.getElementById('t_val').value }));
         }
     </script>
 </body>
