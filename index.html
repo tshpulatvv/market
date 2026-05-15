@@ -1,50 +1,100 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Uchiha Market</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #0b0d14; color: white; font-family: sans-serif; padding: 15px; }
-        .plus-btn { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 50px; float: right; font-weight: bold; }
-        .card { background: #161925; border-radius: 20px; padding: 20px; margin-top: 60px; border: 1px solid #333; margin-bottom: 20px; }
-        .btn-buy { background: linear-gradient(90deg, #6366f1, #8b5cf6); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: bold; margin-top: 10px; }
-        input { background: #0f111a; border: none; color: white; padding: 12px; width: 90%; border-radius: 10px; margin: 10px 0; }
+        :root { --bg: #0b0d14; --card: #161925; --accent: #6366f1; --purple: #8b5cf6; --green: #10b981; --text: #ffffff; }
+        body { background-color: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding: 15px; }
+        
+        .header { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+        .btn-plus { background: var(--green); color: white; border: none; padding: 10px 20px; border-radius: 50px; font-weight: bold; }
+
+        .card { background: var(--card); border-radius: 24px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); display: none; }
+        .active { display: block; }
+
+        .input-group { background: #0f111a; border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        input { background: transparent; border: none; color: white; width: 100%; outline: none; font-size: 16px; }
+
+        .btn-buy { background: linear-gradient(90deg, var(--accent), var(--purple)); color: white; border: none; width: 100%; padding: 16px; border-radius: 14px; font-weight: bold; font-size: 16px; margin-top: 10px; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .opt { background: #0f111a; padding: 12px; border-radius: 12px; text-align: center; border: 1px solid transparent; }
+        .opt.sel { border-color: var(--purple); background: rgba(139, 92, 246, 0.1); }
+
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
+        .m-box { background: var(--card); width: 80%; padding: 25px; border-radius: 25px; text-align: center; }
     </style>
 </head>
 <body>
-    <button class="plus-btn" onclick="topup()">+ Пополнить</button>
-    
-    <div class="card">
-        <h3>⭐️ Купить Stars</h3>
-        <input type="text" id="u1" placeholder="@username">
-        <input type="number" id="q1" placeholder="Количество">
-        <button class="btn-buy" onclick="buy('Stars')">Заказать Stars</button>
+
+    <div class="header">
+        <button class="btn-plus" onclick="openM()">+ Пополнить</button>
     </div>
 
-    <div class="card">
-        <h3>💎 Купить Premium</h3>
-        <input type="text" id="u2" placeholder="@username">
-        <select id="p2" style="width:100%; padding:10px; border-radius:10px; background:#0f111a; color:white; border:none;">
-            <option value="45000">1 месяц - 45к</option>
-            <option value="180000">3 месяца - 180к</option>
-            <option value="230000">6 месяцев - 230к</option>
-            <option value="390000">12 месяцев - 390к</option>
-        </select>
-        <button class="btn-buy" onclick="buy('Premium')">Заказать Premium</button>
+    <div id="page-stars" class="card">
+        <h3 style="margin-top:0">🌟 Telegram Stars</h3>
+        <div class="input-group">
+            <input type="text" id="s_u" placeholder="@username">
+            <button onclick="me('s_u')" style="background:var(--accent); border:none; color:white; padding:5px; border-radius:5px;">Себе</button>
+        </div>
+        <div class="input-group">
+            <input type="number" id="s_q" placeholder="Количество" oninput="c()">
+            <span id="s_p" style="font-size:12px; color:#94a3b8">0 сум</span>
+        </div>
+        <button class="btn-buy" onclick="buyS()">Купить Stars</button>
     </div>
+
+    <div id="page-prem" class="card">
+        <h3 style="margin-top:0">💎 Telegram Premium</h3>
+        <div class="input-group">
+            <input type="text" id="p_u" placeholder="@username">
+            <button onclick="me('p_u')" style="background:var(--accent); border:none; color:white; padding:5px; border-radius:5px;">Себе</button>
+        </div>
+        <div class="grid">
+            <div class="opt" onclick="sP(this, '1 ой', 45000)">1 ой<br><small>45к</small></div>
+            <div class="opt" onclick="sP(this, '3 ой', 180000)">3 ой<br><small>180к</small></div>
+            <div class="opt sel" onclick="sP(this, '6 ой', 230000)">6 ой<br><small>230к</small></div>
+            <div class="opt" onclick="sP(this, '12 ой', 390000)">12 ой<br><small>390к</small></div>
+        </div>
+        <button class="btn-buy" onclick="buyP()">Купить Premium</button>
+    </div>
+
+    <div id="modal"><div class="m-box">
+        <h3>💰 Пополнение</h3>
+        <div class="input-group"><input type="number" id="t_v" placeholder="Сумма..."></div>
+        <button class="btn-buy" style="background:var(--green)" onclick="doT()">Оплатить</button>
+        <p onclick="closeM()" style="margin-top:15px; cursor:pointer">Закрыть</p>
+    </div></div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        function topup() {
-            let s = prompt("Введите сумму пополнения:");
-            if(s) tg.sendData(JSON.stringify({type: "topup", amount: s}));
+        tg.expand();
+        let sel = { n: '6 ой', p: 230000 };
+
+        // Проверка: какую страницу открыть?
+        const params = new URLSearchParams(window.location.search);
+        if(params.get('type') === 'premium') {
+            document.getElementById('page-prem').classList.add('active');
+        } else {
+            document.getElementById('page-stars').classList.add('active');
         }
-        function buy(type) {
-            let u = type === 'Stars' ? document.getElementById('u1').value : document.getElementById('u2').value;
-            let p = type === 'Stars' ? (document.getElementById('q1').value * 300) : document.getElementById('p2').value;
-            tg.sendData(JSON.stringify({item: type, user: u, price: p}));
+
+        function me(id) { if(tg.initDataUnsafe.user) document.getElementById(id).value = tg.initDataUnsafe.user.username; }
+        function c() { document.getElementById('s_p').innerText = (document.getElementById('s_q').value * 300) + " сум"; }
+        function sP(el, n, p) {
+            document.querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+            el.classList.add('sel');
+            sel = { n, p };
         }
+        function openM() { document.getElementById('modal').style.display='flex'; }
+        function closeM() { document.getElementById('modal').style.display='none'; }
+        
+        function buyS() { tg.sendData(JSON.stringify({t:"Stars", u:document.getElementById('s_u').value, q:document.getElementById('s_q').value, p:document.getElementById('s_q').value*300})); }
+        function buyP() { tg.sendData(JSON.stringify({t:"Premium", u:document.getElementById('p_u').value, d:sel.n, p:sel.p})); }
+        function doT() { tg.sendData(JSON.stringify({t:"TopUp", a:document.getElementById('t_v').value})); }
     </script>
 </body>
 </html>
