@@ -2,69 +2,102 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Uchiha Market</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background-color: #0b0e14; color: white; font-family: sans-serif; display: flex; justify-content: center; padding-top: 20px; margin: 0; }
-        .container { background: #161b22; border: 1px solid #30363d; border-radius: 15px; padding: 20px; width: 90%; max-width: 350px; }
-        h2 { color: #a371f7; text-align: center; }
-        label { display: block; font-size: 12px; color: #8b949e; margin-bottom: 5px; margin-top: 15px; }
-        .row { display: flex; gap: 5px; }
-        input { flex-grow: 1; background: #0d1117; border: 1px solid #30363d; padding: 10px; border-radius: 8px; color: white; }
-        .btn-self { background: #3a3fff; border: none; color: white; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .price-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .price-item { background: #21262d; border: 1px solid #30363d; padding: 12px; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; }
-        .price-item:hover, .price-item.active { border-color: #a371f7; background: #2d333b; }
-        .stars { font-weight: bold; color: #e3b341; }
-        .cost { color: #79c0ff; }
-        .buy-btn { width: 100%; background: #a371f7; border: none; color: white; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        :root {
+            --bg-color: #0f111a;
+            --card-bg: #1a1d26;
+            --input-bg: #11131a;
+            --accent-color: #5d68d1;
+            --text-main: #ffffff;
+            --text-secondary: #8a8d9b;
+            --green-btn: #28a745;
+        }
+
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 15px; }
+
+        .top-bar { display: flex; justify-content: center; align-items: center; background: var(--card-bg); padding: 10px 20px; border-radius: 30px; margin-bottom: 25px; gap: 15px; }
+        .balance-amount { font-size: 18px; font-weight: bold; }
+        .btn-add-funds { background: var(--green-btn); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; }
+
+        .input-card { background: var(--card-bg); border-radius: 18px; padding: 15px; margin-bottom: 15px; }
+        .input-wrapper { background: var(--input-bg); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; }
+        input { background: transparent; border: none; color: white; font-size: 16px; width: 100%; outline: none; }
+
+        .btn-self { background: var(--accent-color); border: none; color: white; padding: 6px 14px; border-radius: 10px; }
+        .btn-main-buy { background: linear-gradient(90deg, #5d68d1, #4e5ac8); width: 100%; border: none; color: white; padding: 18px; border-radius: 18px; font-size: 18px; font-weight: bold; margin-top: 10px; }
+
+        /* Модальное окно */
+        #modal-pay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
+        .modal-content { background: var(--card-bg); width: 85%; border-radius: 20px; padding: 25px; text-align: center; }
+        .btn-pay-confirm { background: #ffc107; color: black; width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: bold; margin-top: 15px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Uchiha Market</h2>
-        <label>TELEGRAM USERNAME</label>
-        <div class="row">
-            <input type="text" id="target_user" placeholder="@username">
-            <button class="btn-self" onclick="fillSelf()">Себе</button>
+    <div class="top-bar">
+        <div class="balance-info">
+            <div style="font-size: 10px; color: var(--text-secondary);">БАЛАНС:</div>
+            <div class="balance-amount">0 сум</div>
         </div>
-        <label>ВЫБЕРИТЕ ПАКЕТ STARS</label>
-        <div class="price-list">
-            <div class="price-item" onclick="selectPack(this, '50 Stars', '15 000')">
-                <span class="stars">⭐️ 50 Stars</span> <span class="cost">15 000 сум</span>
-            </div>
-            <div class="price-item" onclick="selectPack(this, '100 Stars', '25 000')">
-                <span class="stars">⭐️ 100 Stars</span> <span class="cost">25 000 сум</span>
-            </div>
-            <div class="price-item" onclick="selectPack(this, '150 Stars', '35 000')">
-                <span class="stars">⭐️ 150 Stars</span> <span class="cost">35 000 сум</span>
-            </div>
-            <div class="price-item" onclick="selectPack(this, '250 Stars', '55 000')">
-                <span class="stars">⭐️ 250 Stars</span> <span class="cost">55 000 сум</span>
-            </div>
-            <div class="price-item" onclick="selectPack(this, '350 Stars', '75 000')">
-                <span class="stars">⭐️ 350 Stars</span> <span class="cost">75 000 сум</span>
-            </div>
-        </div>
-        <button class="buy-btn" id="main_button" onclick="confirmOrder()">Купить</button>
+        <button class="btn-add-funds" onclick="openModal()">+ Пополнить</button>
     </div>
+
+    <div style="font-size: 14px; color: var(--text-secondary); margin: 0 0 8px 5px;">Telegram Username</div>
+    <div class="input-card">
+        <div class="input-wrapper">
+            <span>@</span>
+            <input type="text" id="target_user" placeholder="username">
+            <button class="btn-self" onclick="fillMe()">Себе</button>
+        </div>
+    </div>
+
+    <div style="font-size: 14px; color: var(--text-secondary); margin: 0 0 8px 5px;">Количество (Мин: 50)</div>
+    <div class="input-card">
+        <div class="input-wrapper">
+            <span style="color: #ffcc00;">★</span>
+            <input type="number" id="stars_count" value="0" oninput="updatePrice()">
+            <span id="price_display" style="color: var(--text-secondary); font-size: 14px;">0 сум</span>
+        </div>
+    </div>
+
+    <button class="btn-main-buy" onclick="sendToBot()">Купить</button>
+
+    <div id="modal-pay">
+        <div class="modal-content">
+            <h3 style="margin: 0 0 15px 0;">💳 Оплата картой</h3>
+            <div class="input-wrapper">
+                <input type="number" id="topup_amount" placeholder="Сумма пополнения...">
+            </div>
+            <button class="btn-pay-confirm" onclick="confirmTopup()">Перейти к оплате 🚀</button>
+            <p onclick="closeModal()" style="color: var(--text-secondary); margin-top: 15px; font-size: 14px;">Закрыть</p>
+        </div>
+    </div>
+
     <script>
         let tg = window.Telegram.WebApp;
-        let selectedOrder = "";
         tg.expand();
-        function fillSelf() { if (tg.initDataUnsafe.user && tg.initDataUnsafe.user.username) { document.getElementById('target_user').value = '@' + tg.initDataUnsafe.user.username; } }
-        function selectPack(element, name, price) {
-            document.querySelectorAll('.price-item').forEach(item => item.classList.remove('active'));
-            element.classList.add('active');
-            selectedOrder = `${name} за ${price} сум`;
-            document.getElementById('main_button').innerText = "Купить: " + name;
+
+        function fillMe() { if(tg.initDataUnsafe.user) document.getElementById('target_user').value = tg.initDataUnsafe.user.username; }
+        function updatePrice() { document.getElementById('price_display').innerText = (document.getElementById('stars_count').value * 300) + " сум"; }
+        function openModal() { document.getElementById('modal-pay').style.display = 'flex'; }
+        function closeModal() { document.getElementById('modal-pay').style.display = 'none'; }
+
+        function sendToBot() {
+            tg.sendData(JSON.stringify({
+                item: "Telegram Stars",
+                quantity: document.getElementById('stars_count').value,
+                amount: document.getElementById('stars_count').value * 300,
+                target: "@" + document.getElementById('target_user').value
+            }));
         }
-        function confirmOrder() {
-            let user = document.getElementById('target_user').value;
-            if (!user || !selectedOrder) { alert("Выберите пакет и введите ник!"); return; }
-            tg.sendData(`ЗАКАЗ: ${selectedOrder} | ДЛЯ: ${user}`);
-            tg.close();
+
+        function confirmTopup() {
+            tg.sendData(JSON.stringify({
+                type: "topup",
+                amount: document.getElementById('topup_amount').value
+            }));
         }
     </script>
 </body>
